@@ -57,8 +57,18 @@ def test_agent(agent, brain_name):
             break
     return total_reward
 
+def rolling_aver(scores):
+    scores_deque = deque(maxlen=100)
+    scores_100 = []
+    for s in scores:
+        scores_deque.append(s)
+        scores_100.append(np.mean(scores_deque))
+
+    return scores_100
+
 def plot_save_score(scores, file_name):
-    v_scores = np.array([range(1, len(scores)+1), scores])
+    scores_100 = rolling_aver(scores)
+    v_scores = np.array([range(1, len(scores)+1), scores, scores_100])
     np.savetxt(file_name, np.transpose(v_scores), delimiter=',')
 
 
