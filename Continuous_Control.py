@@ -5,6 +5,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 from ddpg_agent import Agent
 
+import argparse
 
 def ddpg(env, agent,n_episodes=1000, max_t=300, print_every=1):
     brain_name = env.brain_names[0]
@@ -80,8 +81,38 @@ def plot_save_score(scores, file_name):
     plt.show()
     fig.savefig("training.pdf", bbox_inches='tight')
 
+def test_agent(agent):
+    env_info = env.reset(train_mode=False)[brain_name]
+    states = env_info.vector_observations
+    agent.reset()
+    agent_num = env_info.vector_observations.shape[0]
+    score = np.zeros((agent_num,))
+    while True:
+        actions = agent.act(states, add_noise=False)
+        env_info = env.step(actions)[brain_name]
+        next_states = env_info.vector_observations
+        rewards = env_info.rewards
+        dones = env_info.local_done
+        states = next_states
+        score += np.array(rewards)
+        if any(dones):
+            break
+
+    return np.mean(score)
+
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+
+    # Flow
+    parser.add_argument('--train', dest='train', action='store_true')
+    parser.add_argument('--no-train', dest='train', action='store_false')
+    parser.add_argument('--test', dest='test', action='store_true')
+    parser.set_defaults(train=True)
+    parser.set_defaults(test=False)
+
+    args = parser.parse_args()
 
     env = UnityEnvironment(file_name='./Reacher_Linux/Reacher.x86_64')
 
@@ -112,9 +143,15 @@ if __name__ == '__main__':
     scores = np.zeros(num_agents)  # initialize the score (for each agent)
 
 
-    scores = ddpg(env, agent)
+    if args.train :
+        scores = ddpg(env, agent)
+        ofile = "score_history.csv"
+        plot_save_score(scores, ofile)
 
-    plot_save_score(scores, 'scores.csv')
+    if args.test :
+        agent.actor_local.load_state_dict(torch.load('checkpoint_actor.pth'))
+        score = test_agent(agent)
+        print('The agent get :', score)
 
 
     env.close()
