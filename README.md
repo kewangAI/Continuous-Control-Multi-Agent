@@ -20,7 +20,7 @@ The version of environment we adopt in this project contains 20 identical agents
 
 ### Algorithm
 
-### Solving the Environment
+### Solving criterion
  The RL agents must get an average score of +30 (over 100 consecutive episodes, and over all agents).
  
 After each episode, we add up the rewards that each agent received (without discounting), to get a score for each agent. This yields 20 (potentially different) scores. We then take the average of these 20 scores.
