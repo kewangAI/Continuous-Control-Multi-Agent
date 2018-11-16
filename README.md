@@ -48,7 +48,8 @@ The observation space consists of 33 variables corresponding to position, rotati
 	activate ddpg
 	```
 
-3. Install dependencies 
+3. Install dependencies
+ 
     conda install numpy torch collections matplotlib
 
 
